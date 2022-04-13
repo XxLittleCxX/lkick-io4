@@ -9,9 +9,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'true'
-      - run: sudo apt update |
+      - run: |
+          sudo apt update
           sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential ninja-build
-      - run: mkdir build |
-          cd build | 
-          cmake -G Ninja .. | 
+      - run: |
+          mkdir build
+          cd build
+          cmake -G Ninja ..
           ninja
