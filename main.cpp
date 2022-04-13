@@ -1,14 +1,5 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "bsp/board.h"
+#include "stdinclude.h"
 
-#include <ctype.h>
-
-#include "tusb.h"
-
-// The built in LED
-#define LED_PIN 25
 
 enum  {
     BLINK_NOT_MOUNTED = 250,
@@ -22,7 +13,8 @@ void led_blinking_task(void);
 void hid_task(void);
 
 static void cdc_task(void);
-void update();
+
+[[noreturn]] void update(void *pVoid);
 struct output_t {
     int16_t analog[8];
     int16_t rotary[4];
@@ -48,19 +40,40 @@ struct input_t {
     uint8_t payload[62];
 } __attribute((packed));
 
-int main() {
 
+static output_t output_data;
+
+
+[[noreturn]] void tud(void *pVoid){
+
+    printf("tusb before init\n");
+    tusb_init();
+    printf("tusb init\n");
+    while(true){
+        tud_task();
+        //printf("tusb task\n");
+        if (tud_hid_ready()) {
+            tud_hid_report(0x01, &output_data, sizeof(output_data));
+        }
+        vTaskDelay(2 / portTICK_PERIOD_MS);
+    }
+}
+
+int main() {
+    stdio_init_all();
 
     board_init();
-    tusb_init();
+    uart_init(UART_ID, BAUD_RATE);
 
-    while (1)
-    {
-        tud_task(); // tinyusb device task
-        led_blinking_task();
-        cdc_task();
-        update();
-    }
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+
+    xTaskCreate(tud, "tud",USBD_STACK_SIZE, NULL,5,NULL);
+    xTaskCreate(update, "io4",256, NULL,10,NULL);
+    vTaskStartScheduler();
+    while(1){
+
+    };
 }
 
 // echo to either Serial0 or Serial1
@@ -131,17 +144,12 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
     return 0;
 }
 
-static output_t output_data;
-
-void init() {
+[[noreturn]] void update(void *pVoid) {
     output_data.system_status = 0x02;
-}
-
-void update() {
-    if (tud_hid_ready()) {
-        output_data.switches[0] = rand();
-        output_data.switches[1] = rand();
-        tud_hid_report(0x01, &output_data, sizeof(output_data));
+    while(true){
+            output_data.switches[0] = rand();
+            output_data.switches[1] = rand();
+        vTaskDelay(2 / portTICK_PERIOD_MS);
     }
 }
 
@@ -228,24 +236,3 @@ void tud_resume_cb(void)
 {
     blink_interval_ms = BLINK_MOUNTED;
 }
-
-
-//--------------------------------------------------------------------+
-// BLINKING TASK
-//--------------------------------------------------------------------+
-void led_blinking_task(void)
-{
-    static uint32_t start_ms = 0;
-    static bool led_state = false;
-
-    // blink is disabled
-    if (!blink_interval_ms) return;
-
-    // Blink every interval ms
-    if ( board_millis() - start_ms < blink_interval_ms) return; // not enough time
-    start_ms += blink_interval_ms;
-
-    board_led_write(led_state);
-    led_state = 1 - led_state; // toggle
-}
-

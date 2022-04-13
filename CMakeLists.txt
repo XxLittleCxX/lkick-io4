@@ -6,7 +6,7 @@ project(LKICK)
 
 pico_sdk_init()
 
-add_executable(LKICK main.cpp)
+add_executable(LKICK main.cpp stdinclude.h)
 
 target_sources(LKICK PUBLIC ${CMAKE_CURRENT_LIST_DIR}/main.cpp
         ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c)
@@ -14,6 +14,9 @@ target_sources(LKICK PUBLIC ${CMAKE_CURRENT_LIST_DIR}/main.cpp
 target_include_directories(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
 
-target_link_libraries(LKICK pico_stdlib hardware_adc tinyusb_device tinyusb_board)
+add_subdirectory(freertos)
 
+target_link_libraries(LKICK pico_stdlib hardware_adc tinyusb_device tinyusb_board freertos)
+
+pico_enable_stdio_uart(LKICK 1)
 pico_add_extra_outputs(LKICK)
