@@ -5,7 +5,7 @@
 #ifndef LKICK_STDINCLUDE_H
 #define LKICK_STDINCLUDE_H
 
-
+#include <cstdio>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,12 +19,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-//#include "src/PN532/PN532.h"
-//#include "hid.h"
-//#include "ongeki_hardware.h"
-//#include "serial.h"
-//#include "aime_reader.h"
-//#include "led_board.h"
+#include "io4_usb.h"
+#include "ongeki_hardware.h"
+
+#include "led_board.h"
+#include "comio.h"
+#include "serial.h"
 
 #define USBD_STACK_SIZE    (3*configMINIMAL_STACK_SIZE/2) * (CFG_TUSB_DEBUG ? 2 : 1)
 

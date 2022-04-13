@@ -8,8 +8,15 @@ pico_sdk_init()
 
 add_executable(LKICK main.cpp stdinclude.h)
 
-target_sources(LKICK PUBLIC ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c)
+target_sources(LKICK PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR}/main.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
+        ${CMAKE_CURRENT_LIST_DIR}/src/components/io4_usb.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/components/usb_cdc.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/components/ongeki_hardware.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/components/serial.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/boards/led_board.cpp
+        )
 
 target_include_directories(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}

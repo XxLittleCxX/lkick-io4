@@ -1,8 +1,7 @@
-//
-// Created by i on 2022/4/13.
-//
+#include "stdinclude.h"
 
-#ifndef LKICK_ONGEKI_HARDWARE_H
-#define LKICK_ONGEKI_HARDWARE_H
-
-#endif //LKICK_ONGEKI_HARDWARE_H
+namespace component {
+    namespace ongeki_hardware {
+        void update_hardware(component::io4_usb::output_t *data);
+    }
+}

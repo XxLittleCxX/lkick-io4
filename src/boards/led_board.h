@@ -1,8 +1,7 @@
-//
-// Created by i on 2022/4/13.
-//
+#include "stdinclude.h"
+#include "serial.h"
 
-#ifndef LKICK_LED_BOARD_H
-#define LKICK_LED_BOARD_H
-
-#endif //LKICK_LED_BOARD_H
+namespace led_board {
+    void init(const component::serial::stream *stream);
+    void update();
+}

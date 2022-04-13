@@ -1,8 +1,26 @@
-//
-// Created by i on 2022/4/13.
-//
+#pragma once
+#include "stdinclude.h"
+namespace component {
+    namespace serial {
+        class stream {
+        public:
+            explicit stream(int itf);
 
-#ifndef LKICK_SERIAL_H
-#define LKICK_SERIAL_H
+            bool read(uint8_t &out) const;
+            void write(uint8_t byte) const;
+            void write_head() const;
+            bool available() const;
 
-#endif //LKICK_SERIAL_H
+            void flush() const;
+
+        private:
+            int m_itf;
+        };
+
+        typedef void (* update_cb_t)(const stream &stream);
+
+        void init();
+
+        [[noreturn]] void update(void *abc);
+    }
+}
