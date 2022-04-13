@@ -17,3 +17,7 @@ jobs:
           cd build
           cmake -G Ninja ..
           ninja
+      - uses: actions/upload-artifact@v2
+        with:
+          name: firmware.uf2
+          path: ./**/*.uf2
