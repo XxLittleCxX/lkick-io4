@@ -8,16 +8,23 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "bsp/board.h"
 #include "hardware/uart.h"
-
 #include "pico/stdlib.h"
-
 #include <ctype.h>
 #include "tusb.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
+
+//#include "src/PN532/PN532.h"
+//#include "hid.h"
+//#include "ongeki_hardware.h"
+//#include "serial.h"
+//#include "aime_reader.h"
+//#include "led_board.h"
 
 #define USBD_STACK_SIZE    (3*configMINIMAL_STACK_SIZE/2) * (CFG_TUSB_DEBUG ? 2 : 1)
 

@@ -12,7 +12,7 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 void led_blinking_task(void);
 void hid_task(void);
 
-static void cdc_task(void);
+[[noreturn]] static void cdc_task(void *pVoid);
 
 [[noreturn]] void update(void *pVoid);
 struct output_t {
@@ -70,6 +70,7 @@ int main() {
 
     xTaskCreate(tud, "tud",USBD_STACK_SIZE, NULL,5,NULL);
     xTaskCreate(update, "io4",256, NULL,10,NULL);
+    xTaskCreate(cdc_task, "cdc",256, NULL,7,NULL);
     vTaskStartScheduler();
     while(1){
 
@@ -101,27 +102,30 @@ static void echo_serial_port(uint8_t itf, uint8_t buf[], uint32_t count)
 //--------------------------------------------------------------------+
 // USB CDC
 //--------------------------------------------------------------------+
-static void cdc_task(void)
+[[noreturn]] static void cdc_task(void *pVoid)
 {
-    uint8_t itf;
+    while(true){
+        uint8_t itf;
 
-    for (itf = 0; itf < CFG_TUD_CDC; itf++)
-    {
-        // connected() check for DTR bit
-        // Most but not all terminal client set this when making connection
-        // if ( tud_cdc_n_connected(itf) )
+        for (itf = 0; itf < CFG_TUD_CDC; itf++)
         {
-            if ( tud_cdc_n_available(itf) )
+            // connected() check for DTR bit
+            // Most but not all terminal client set this when making connection
+            // if ( tud_cdc_n_connected(itf) )
             {
-                uint8_t buf[64];
+                if ( tud_cdc_n_available(itf) )
+                {
+                    uint8_t buf[64];
 
-                uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+                    uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
 
-                // echo back to both serial ports
-                echo_serial_port(0, buf, count);
-                echo_serial_port(1, buf, count);
+                    // echo back to both serial ports
+                    echo_serial_port(0, buf, count);
+                    echo_serial_port(1, buf, count);
+                }
             }
         }
+        vTaskDelay(2 / portTICK_PERIOD_MS);
     }
 }
 
@@ -147,8 +151,10 @@ uint16_t tud_hid_get_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t
 [[noreturn]] void update(void *pVoid) {
     output_data.system_status = 0x02;
     while(true){
-            output_data.switches[0] = rand();
-            output_data.switches[1] = rand();
+//            output_data.switches[0] = rand();
+//            output_data.switches[1] = rand();
+//output_data.coin[0] = rand();
+//        output_data.coin[1] = rand();
         vTaskDelay(2 / portTICK_PERIOD_MS);
     }
 }
