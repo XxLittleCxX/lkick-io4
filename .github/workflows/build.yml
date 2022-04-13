@@ -6,9 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          submodules: 'true'
+          submodules: 'recursive'
       - run: |
           sudo apt update
           sudo apt install cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential ninja-build
