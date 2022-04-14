@@ -4,7 +4,7 @@ int main() {
     stdio_uart_init_full(uart1, 115200, 4,5);
 
     board_init();
-    uart_init(UART_ID, BAUD_RATE);
+    uart_init(uart0, BAUD_RATE);
     gpio_set_function(0, GPIO_FUNC_UART);
     gpio_set_function(1, GPIO_FUNC_UART);
 
@@ -24,6 +24,7 @@ int main() {
 //    }
 
     //uart_puts(uart1, "Hello world!\n");
+    printf("hello\n");
     component::io4_usb::usb_init();
     component::serial::init();
     vTaskStartScheduler();

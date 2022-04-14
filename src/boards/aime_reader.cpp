@@ -1,125 +1,127 @@
 #include "stdinclude.h"
-#include "PN532.h"
-#include "PN532_HSU.h"
+#include "aime_cmd.h"
 
 namespace aime_reader {
     const component::serial::stream *stream;
 
-    io_packet_t *out;
-
-    io_packet_t *in;
-    uint8_t in_size, checksum;
-
-//    i2c_inst_t *i2c = i2c0;
-
-    //PN532_I2C pn532_i2c(*i2c);
-    PN532_HSU pn532_hsu;
-    PN532 nfc(pn532_hsu);
-
-    const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
     void init(const component::serial::stream *input) {
-//        const uint sda_pin = 0;
-//        const uint scl_pin = 1;
-//        i2c_init(i2c, 100 * 1000);
-//        gpio_set_function(sda_pin, GPIO_FUNC_I2C);
-//        gpio_set_function(scl_pin, GPIO_FUNC_I2C);
-//        gpio_pull_up(sda_pin);
-//        gpio_pull_up(scl_pin);
-
-        // 0x48 address
         stream = input;
-        nfc.begin();
-//
-//
-//
-        uint32_t versiondata = nfc.getFirmwareVersion();
-        uart_puts(uart1, (versiondata ? "y" : "n"));
-        nfc.setPassiveActivationRetries(0x10);//设定等待次数
-        nfc.SAMConfig();
-
-        gpio_init(LED_PIN);
-        gpio_set_dir(LED_PIN,GPIO_OUT);
-//        uint8_t rxdata;
-//        int ret = i2c_read_blocking(i2c, 0x48, &rxdata, 1, false);
-//        uart_puts(uart1, ret < 0 ? "." : "@");
     }
-    uint16_t systemCode = 0xFFFF;
-    uint8_t requestCode = 0x01;
-    typedef union {
-        uint8_t block[18];
-        struct {
-            uint8_t IDm[8];
-            uint8_t PMm[8];
-            union {
-                uint16_t SystemCode;
-                uint8_t System_Code[2];
-            };
-        };
-    } Card;
-    Card card;
 
-    void on_packet(io_packet_t *packet) {
-        bool response = true;
+    void reset() {
 
-        io_fill_data(out, packet->srcNodeId, packet->dstNodeId);
-        out->response.status = ACK_OK;
-        out->response.report = REPORT_OK;
-        out->response.command = packet->request.command;
+    }
 
-        switch(packet->request.command) {
-            case cAiMeNFCRW::kNFCCMD_EXT_TO_NORMAL_MODE:
-            {
-                // 重置
+    void on_packet() {
+        switch(req.cmd) {
+            case kNFCCMD_TO_NORMAL_MODE:
+                uart_puts(uart1,"Aime Board: To Normal Mode\n");
+                sg_nfc_cmd_reset();
                 break;
-            }
-            default: {
-                out->length = 0;
-                out->response.status = ACK_INVALID;
+            case kNFCCMD_GET_FW_VERSION:
+                uart_puts(uart1,"Aime Board: Get FW Version\n");
+                sg_nfc_cmd_get_fw_version();
                 break;
-            }
+            case kNFCCMD_GET_HW_VERSION:
+                uart_puts(uart1,"Aime Board: Get HW Version\n");
+                sg_nfc_cmd_get_hw_version();
+                break;
+            case kNFCCMD_CARD_DETECT:
+                uart_puts(uart1,"Aime Board: Card Detect\n");
+                sg_nfc_cmd_poll();
+                break;
+            case kNFCCMD_MIFARE_READ:
+                uart_puts(uart1,"Aime Board: Mifare Read\n");
+                sg_nfc_cmd_mifare_read_block();
+                break;
+            case kNFCCMD_NFC_THROUGH:
+                uart_puts(uart1,"Aime Board: NFC Though\n");
+                sg_nfc_cmd_felica_encap();
+                break;
+            case kNFCCMD_MIFARE_AUTHORIZE_B:
+                uart_puts(uart1,"Aime Board: Aime Auth\n");
+                sg_nfc_cmd_aime_authenticate();
+                break;
+            case kNFCCMD_MIFARE_AUTHORIZE_A:
+                uart_puts(uart1,"Aime Board: Bana Auth\n");
+                sg_nfc_cmd_bana_authenticate();
+                break;
+            case kNFCCMD_CARD_SELECT:
+                uart_puts(uart1,"Aime Board: Select Tag\n");
+                sg_nfc_cmd_mifare_select_tag();
+                break;
+            case kNFCCMD_MIFARE_KEY_SET_B:
+                uart_puts(uart1,"Aime Board: Set Aime Key\n");
+                sg_nfc_cmd_mifare_set_key_aime();
+                break;
+            case kNFCCMD_MIFARE_KEY_SET_A:
+                uart_puts(uart1,"Aime Board: Set Bana Key\n");
+                sg_nfc_cmd_mifare_set_key_bana();
+                break;
+            case kNFCCMD_START_POLLING:
+                uart_puts(uart1,"Aime Board: Start Polling\n");
+                sg_nfc_cmd_radio_on();
+                break;
+            case kNFCCMD_STOP_POLLING:
+                uart_puts(uart1,"Aime Board: Stop Polling\n");
+                sg_nfc_cmd_radio_off();
+                break;
+            case kNFCCMD_EXT_TO_NORMAL_MODE:
+                uart_puts(uart1,"Aime LED Board: To Normal Mode\n");
+                sg_led_cmd_reset();
+                break;
+            case kNFCCMD_EXT_BOARD_INFO:
+                uart_puts(uart1,"Aime LED Board: Get Board Info\n");
+                sg_led_cmd_get_info();
+                break;
+            case kNFCCMD_EXT_BOARD_LED_RGB:
+                uart_puts(uart1,"Aime LED Board: Sed LED RGB Color\n");
+                sg_led_cmd_set_color();
+                break;
+            default:
+                sg_res_init();
+                break;
         }
 
-        if (response) {
-            io_apply_checksum(out);
-            auto size = io_get_package_size(out, PACKAGE_TYPE_RESPONSE);
+        if (res.cmd == 0) return;
 
-            stream->write_head();
-            for(auto i = 1; i < size; i++) {
-                stream->write(out->buffer[i]);
-            }
+        uint8_t checksum = 0;
 
-            stream->flush();
+        stream->write_head();
+        for(auto i = 0; i < res.frame_len; i++) {
+            checksum += res.bytes[i];
+            stream->write(res.bytes[i]);
         }
+        stream->write(checksum);
+        stream->flush();
+
+        res.cmd = 0;
     }
+
+    uint8_t in_size, checksum;
 
     void update() {
+        while(stream->available()) {
+            uint8_t byte;
+            bool is_escaped = stream->read(byte);
 
-        if (nfc.felica_Polling(systemCode, requestCode, card.IDm, card.PMm, &card.SystemCode, 80)) {
-            gpio_put(LED_PIN,1);
-            //stream->write(2);
-        }else{
-            gpio_put(LED_PIN,0);
-            //stream->write(3);
+            if(byte == 0xE0 && !is_escaped) {
+                // uart_puts(uart1,"Aime Reader: Recv Sync\n");
+                in_size = 0;
+                checksum = 0;
+
+                continue;
+            }
+
+            req.bytes[in_size ++] = byte;
+
+            if(in_size > 2 && in_size - 1 == req.frame_len && checksum == byte) {
+                // uart_puts(uart1,"Aime Reader: Recv %d bytes, checksum %d\n", in_size, checksum);
+                on_packet();
+            }
+
+            checksum += byte;
         }
-//        while(stream->available()) {
-//            uint8_t byte;
-//            bool is_escaped = stream->read(byte);
-//
-//            if(byte == 0xE0 && !is_escaped) {
-//                in_size = 0;
-//                checksum = 0;
-//            }
-//
-//            in->buffer[in_size++] = byte;
-//
-//            if(in_size > 5 && in_size - 5 == in->length && checksum == byte) {
-//                on_packet(in);
-//            }
-//
-//            if(byte != 0xE0 || is_escaped) {
-//                checksum += byte;
-//            }
-//        }
     }
 }
