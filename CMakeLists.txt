@@ -16,6 +16,9 @@ target_sources(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src/components/ongeki_hardware.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/components/serial.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/boards/led_board.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/boards/aime_reader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/PN532_HSU/PN532_HSU.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/PN532/PN532.cpp
         )
 
 target_include_directories(LKICK PUBLIC
@@ -28,7 +31,7 @@ target_include_directories(LKICK PUBLIC
 
 add_subdirectory(freertos)
 
-target_link_libraries(LKICK pico_stdlib hardware_adc tinyusb_device tinyusb_board freertos)
+target_link_libraries(LKICK pico_stdlib hardware_adc tinyusb_device tinyusb_board freertos hardware_i2c)
 
 pico_enable_stdio_uart(LKICK 1)
 pico_add_extra_outputs(LKICK)

@@ -9,8 +9,15 @@ namespace component {
 
         void init() {
             xTaskCreate(component::serial::update, "serial", 256, NULL, 10, NULL);
+            xTaskCreate(component::serial::aimeUpdate, "aime", 256, NULL, 10, NULL);
+        }
 
-            //aime_reader::init(&streams[1]);
+        [[noreturn]] void aimeUpdate(void *pVoid) {
+            aime_reader::init(&streams[1]);
+            while(true){
+                aime_reader::update();
+                vTaskDelay(250 / portTICK_PERIOD_MS);
+            }
         }
 
         [[noreturn]] void update(void *pVoid) {
@@ -19,7 +26,6 @@ namespace component {
                 led_board::update();
                 vTaskDelay(5 / portTICK_PERIOD_MS);
             }
-            //aime_reader::update();
         }
 
         stream::stream(int itf) {

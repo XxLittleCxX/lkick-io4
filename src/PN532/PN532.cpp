@@ -6,7 +6,6 @@
 */
 /**************************************************************************/
 
-#include "Arduino.h"
 #include "PN532.h"
 #include "PN532_debug.h"
 #include <string.h>
@@ -39,22 +38,7 @@ void PN532::begin()
 /**************************************************************************/
 void PN532::PrintHex(const uint8_t *data, const uint32_t numBytes)
 {
-#ifdef ARDUINO
-    for (uint8_t i = 0; i < numBytes; i++) {
-        if (data[i] < 0x10) {
-            Serial.print(" 0");
-        } else {
-            Serial.print(' ');
-        }
-        Serial.print(data[i], HEX);
-    }
-    Serial.println("");
-#else
-    for (uint8_t i = 0; i < numBytes; i++) {
-        printf(" %2X", data[i]);
-    }
-    printf("\n");
-#endif
+
 }
 
 /**************************************************************************/
@@ -70,40 +54,7 @@ void PN532::PrintHex(const uint8_t *data, const uint32_t numBytes)
 /**************************************************************************/
 void PN532::PrintHexChar(const uint8_t *data, const uint32_t numBytes)
 {
-#ifdef ARDUINO
-    for (uint8_t i = 0; i < numBytes; i++) {
-        if (data[i] < 0x10) {
-            Serial.print(" 0");
-        } else {
-            Serial.print(' ');
-        }
-        Serial.print(data[i], HEX);
-    }
-    Serial.print("    ");
-    for (uint8_t i = 0; i < numBytes; i++) {
-        char c = data[i];
-        if (c <= 0x1f || c > 0x7f) {
-            Serial.print('.');
-        } else {
-            Serial.print(c);
-        }
-    }
-    Serial.println("");
-#else
-    for (uint8_t i = 0; i < numBytes; i++) {
-        printf(" %2X", data[i]);
-    }
-    printf("    ");
-    for (uint8_t i = 0; i < numBytes; i++) {
-        char c = data[i];
-        if (c <= 0x1f || c > 0x7f) {
-            printf(".");
-        } else {
-            printf("%c", c);
-        }
-        printf("\n");
-    }
-#endif
+
 }
 
 /**************************************************************************/
@@ -653,7 +604,7 @@ uint8_t PN532::mifareclassic_WriteNDEFURI (uint8_t sectorNumber, uint8_t uriIden
     // in NDEF records
 
     // Setup the sector buffer (w/pre-formatted TLV wrapper and NDEF message)
-    uint8_t sectorbuffer1[16] = {0x00, 0x00, 0x03, len + 5, 0xD1, 0x01, len + 1, 0x55, uriIdentifier, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t sectorbuffer1[16] = {0x00, 0x00, 0x03, static_cast<uint8_t>(len + 5), 0xD1, 0x01, len + 1, 0x55, uriIdentifier, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t sectorbuffer2[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t sectorbuffer3[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t sectorbuffer4[16] = {0xD3, 0xF7, 0xD3, 0xF7, 0xD3, 0xF7, 0x7F, 0x07, 0x88, 0x40, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};

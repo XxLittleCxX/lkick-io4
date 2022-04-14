@@ -1,7 +1,6 @@
-
+#include "stdinclude.h"
 #include "PN532_HSU.h"
 #include "PN532_debug.h"
-#include "stdinclude.h"
 
 
 PN532_HSU::PN532_HSU()
@@ -16,66 +15,66 @@ void PN532_HSU::begin()
 
 void PN532_HSU::wakeup()
 {
-    putchar(0x55);
-    putchar(0x55);
-    putchar(0);
-    putchar(0);
-    putchar(0);
+    uart_putc(uart0,0x55);
+    uart_putc(uart0,0x55);
+    uart_putc(uart0,0);
+    uart_putc(uart0,0);
+    uart_putc(uart0,0);
 
-//    /** dump serial buffer */
-//    if(_serial->available()){
-//        DMSG("Dump serial buffer: ");
-//    }
-//    while(_serial->available()){
-//        uint8_t ret = _serial->read();
-//        DMSG_HEX(ret);
-//    }
+    /** dump serial buffer */
+    if(uart_is_readable(uart0)){
+        DMSG("Dump serial buffer: ");
+    }
+    while(uart_is_readable(uart0)){
+        uint8_t ret = uart_getc(uart0);
+        DMSG_HEX(ret);
+    }
 
 }
 
 int8_t PN532_HSU::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_t *body, uint8_t blen)
 {
 
-//    /** dump serial buffer */
-//    if(_serial->available()){
-//        DMSG("Dump serial buffer: ");
-//    }
-//    while(_serial->available()){
-//        uint8_t ret = _serial->read();
-//        DMSG_HEX(ret);
-//    }
+    /** dump serial buffer */
+    if(uart_is_readable(uart0)){
+        DMSG("Dump serial buffer: ");
+    }
+    while(uart_is_readable(uart0)){
+        uint8_t ret = uart_getc(uart0);
+        DMSG_HEX(ret);
+    }
 
     command = header[0];
-    
-    putchar(PN532_PREAMBLE);
-    putchar(PN532_STARTCODE1);
-    putchar(PN532_STARTCODE2);
-    
+
+    uart_putc(uart0,PN532_PREAMBLE);
+    uart_putc(uart0,PN532_STARTCODE1);
+    uart_putc(uart0,PN532_STARTCODE2);
+
     uint8_t length = hlen + blen + 1;   // length of data field: TFI + DATA
-    putchar(length);
-    putchar(~length + 1);         // checksum of length
-    
-    putchar(PN532_HOSTTOPN532);
+    uart_putc(uart0,length);
+    uart_putc(uart0,~length + 1);         // checksum of length
+
+    uart_putc(uart0,PN532_HOSTTOPN532);
     uint8_t sum = PN532_HOSTTOPN532;    // sum of TFI + DATA
 
     DMSG("\nWrite: ");
 
+
     for (uint8_t i = 0; i < hlen; i++) {
         sum += header[i];
-        putchar(header[i]);
+        uart_putc(uart0, header[i]);
         DMSG_HEX(header[i]);
     }
 
     for (uint8_t i = 0; i < blen; i++) {
         sum += body[i];
-        putchar(body[i]);
+        uart_putc(uart0, body[i]);
         DMSG_HEX(body[i]);
     }
 
-    
     uint8_t checksum = ~sum + 1;            // checksum of TFI + DATA
-    putchar(checksum);
-    putchar(PN532_POSTAMBLE);
+    uart_putc(uart0,checksum);
+    uart_putc(uart0,PN532_POSTAMBLE);
 
     return readAckFrame();
 }
@@ -83,9 +82,9 @@ int8_t PN532_HSU::writeCommand(const uint8_t *header, uint8_t hlen, const uint8_
 int16_t PN532_HSU::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
 {
     uint8_t tmp[3];
-    
+
     DMSG("\nRead:  ");
-    
+
     /** Frame Preamble and Start Code */
     if(receive(tmp, 3, timeout)<=0){
         return PN532_TIMEOUT;
@@ -94,7 +93,7 @@ int16_t PN532_HSU::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
         DMSG("Preamble error");
         return PN532_INVALID_FRAME;
     }
-    
+
     /** receive length and check */
     uint8_t length[2];
     if(receive(length, 2, timeout) <= 0){
@@ -108,7 +107,7 @@ int16_t PN532_HSU::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     if( length[0] > len){
         return PN532_NO_SPACE;
     }
-    
+
     /** receive command byte */
     uint8_t cmd = command + 1;               // response command
     if(receive(tmp, 2, timeout) <= 0){
@@ -118,7 +117,7 @@ int16_t PN532_HSU::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
         DMSG("Command error");
         return PN532_INVALID_FRAME;
     }
-    
+
     if(receive(buf, length[0], timeout) != length[0]){
         return PN532_TIMEOUT;
     }
@@ -126,7 +125,7 @@ int16_t PN532_HSU::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
     for(uint8_t i=0; i<length[0]; i++){
         sum += buf[i];
     }
-    
+
     /** checksum and postamble */
     if(receive(tmp, 2, timeout) <= 0){
         return PN532_TIMEOUT;
@@ -135,7 +134,7 @@ int16_t PN532_HSU::readResponse(uint8_t buf[], uint8_t len, uint16_t timeout)
         DMSG("Checksum error");
         return PN532_INVALID_FRAME;
     }
-    
+
     return length[0];
 }
 
@@ -143,14 +142,14 @@ int8_t PN532_HSU::readAckFrame()
 {
     const uint8_t PN532_ACK[] = {0, 0, 0xFF, 0, 0xFF, 0};
     uint8_t ackBuf[sizeof(PN532_ACK)];
-    
+
     DMSG("\nAck: ");
-    
+
     if( receive(ackBuf, sizeof(PN532_ACK), PN532_ACK_WAIT_TIME) <= 0 ){
         DMSG("Timeout\n");
         return PN532_TIMEOUT;
     }
-    
+
     if( memcmp(ackBuf, PN532_ACK, sizeof(PN532_ACK)) ){
         DMSG("Invalid\n");
         return PN532_INVALID_ACK;
@@ -167,29 +166,29 @@ int8_t PN532_HSU::readAckFrame()
 */
 int8_t PN532_HSU::receive(uint8_t *buf, int len, uint16_t timeout)
 {
-  int read_bytes = 0;
-  int ret;
-  unsigned long start_millis;
-  
-  while (read_bytes < len) {
-    start_millis = to_ms_since_boot(get_absolute_time());
-    do {
-      ret = getchar();
-      if (ret >= 0) {
-        break;
-     }
-    } while((timeout == 0) || ((to_ms_since_boot(get_absolute_time())- start_millis ) < timeout));
-    
-    if (ret < 0) {
-        if(read_bytes){
-            return read_bytes;
-        }else{
-            return PN532_TIMEOUT;
+    int read_bytes = 0;
+    int ret;
+    unsigned long start_millis;
+
+    while (read_bytes < len) {
+        start_millis = to_ms_since_boot(get_absolute_time());
+        do {
+            ret = uart_getc(uart0);
+            if (ret >= 0) {
+                break;
+            }
+        } while((timeout == 0) || ((to_ms_since_boot(get_absolute_time())- start_millis ) < timeout));
+
+        if (ret < 0) {
+            if(read_bytes){
+                return read_bytes;
+            }else{
+                return PN532_TIMEOUT;
+            }
         }
+        buf[read_bytes] = (uint8_t)ret;
+        DMSG_HEX(ret);
+        read_bytes++;
     }
-    buf[read_bytes] = (uint8_t)ret;
-    DMSG_HEX(ret);
-    read_bytes++;
-  }
-  return read_bytes;
+    return read_bytes;
 }

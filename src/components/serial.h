@@ -22,5 +22,6 @@ namespace component {
         void init();
 
         [[noreturn]] void update(void *abc);
+        [[noreturn]] void aimeUpdate(void *abc);
     }
 }
