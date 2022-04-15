@@ -8,14 +8,32 @@ namespace led_board {
 
     const component::serial::stream *stream;
 
+
+    auto rightColors = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 1,
+                                                          RSIDE_RGB_PIN, 6, PicoLed::FORMAT_GRB);
+    auto leftColors = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 2,
+                                                         LSIDE_RGB_PIN, 6, PicoLed::FORMAT_GRB);
     void init(const component::serial::stream *input) {
         stream = input;
         out = io_alloc(PACKET_TYPE_RESPONSE, 128);
         in = io_alloc(PACKET_TYPE_REQUEST, 128);
+
+
+        leftColors.fillGradient(PicoLed::RGB(255, 0, 0), PicoLed::RGB(0, 255, 0));
+        leftColors.show();
+
+        rightColors.fillGradient(PicoLed::RGB(0, 255, 0), PicoLed::RGB(0, 0, 255));
+        rightColors.show();
     }
 
     void parse_led_data(const uint8_t* data, int count) {
+        uint8_t base = 1 + 59 * 3;
+        leftColors.fill(PicoLed::RGB(data[base], data[base+1], data[base+2]));
+        leftColors.show();
 
+        uint8_t leftBase = 1;
+        rightColors.fill(PicoLed::RGB(data[leftBase], data[leftBase+1], data[leftBase+2]));
+        rightColors.show();
     }
 
     void on_packet(io_packet_t *packet) {
@@ -103,7 +121,6 @@ namespace led_board {
         while(stream->available()) {
             uint8_t byte;
             bool is_escaped = stream->read(byte);
-            uart_putc(uart0, byte);
 
             if(byte == 0xE0 && !is_escaped) {
                 // uart_puts(uart1,"LED Board: Recv Sync\n");

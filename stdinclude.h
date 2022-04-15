@@ -26,6 +26,8 @@
 #include "comio.h"
 #include "serial.h"
 #include "aime_reader.h"
+
+#include <PicoLed.hpp>
 #define USBD_STACK_SIZE    (3*configMINIMAL_STACK_SIZE/2) * (CFG_TUSB_DEBUG ? 2 : 1)
 
 #define LEVER_PIN 28
