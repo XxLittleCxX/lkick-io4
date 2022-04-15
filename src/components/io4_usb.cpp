@@ -5,7 +5,7 @@ namespace component {
         output_t output_data;
 
         void usb_init() {
-            xTaskCreate(tud, "tud", 1024, NULL, 10, NULL);
+            xTaskCreate(tud, "tud", 2048, NULL, 10, NULL);
             //xTaskCreate(update_task, "io4", 256, NULL, 10, NULL);
         }
 
@@ -14,12 +14,13 @@ namespace component {
             while (true) {
                 tud_task();
 
-                //component::ongeki_hardware::update_hardware(&output_data);
+                component::ongeki_hardware::update_hardware(&output_data);
 
                 if (tud_hid_ready()) {
                     tud_hid_report(0x01, &output_data, sizeof(output_data));
+
                 }
-                vTaskDelay(5 / portTICK_PERIOD_MS);
+                vTaskDelay(3 / portTICK_PERIOD_MS);
             }
         }
 
