@@ -29,7 +29,7 @@ namespace led_board {
         switch(packet->request.command) {
             case CMD_RESET:
             {
-                uart_puts(uart1,"LED Board: Reset\n");
+                //uart_puts(uart1,"LED Board: Reset\n");
                 out->length = 0;
                 break;
             }
@@ -55,31 +55,31 @@ namespace led_board {
             }
             case CMD_BOARD_INFO:
             {
-                uart_puts(uart1,"LED Board: Report Board Information\n");
+                //uart_puts(uart1,"LED Board: Report Board Information\n");
                 out->length = io_build_board_info(out->response.data, 1024, "15093-06", "6710A", 0xA0);
                 break;
             }
             case CMD_BOARD_STATUS:
             {
-                uart_puts(uart1,"LED Board: Report Board Status\n");
+                //uart_puts(uart1,"LED Board: Report Board Status\n");
                 out->length = io_build_board_status(out->response.data, 1024, 0, 0, 0);
                 break;
             }
             case CMD_FIRM_SUM:
             {
-                uart_puts(uart1,"LED Board: Report Board Firmware Checksum\n");
+                //uart_puts(uart1,"LED Board: Report Board Firmware Checksum\n");
                 out->length = io_build_firmsum(out->response.data, 1024, 0xAA53);
                 break;
             }
             case CMD_PROTOCOL_VERSION:
             {
-                uart_puts(uart1,"LED Board: Report Protocol Version\n");
+                //uart_puts(uart1,"LED Board: Report Protocol Version\n");
                 out->length = io_build_protocol_version(out->response.data, 1024, 1, 0);
                 break;
             }
             default:
             {
-                uart_puts(uart1,"LED Board: Got Unknown Message\n");
+                //uart_puts(uart1,"LED Board: Got Unknown Message\n");
                 out->length = 0;
                 out->response.status = ACK_INVALID;
                 break;
@@ -103,6 +103,7 @@ namespace led_board {
         while(stream->available()) {
             uint8_t byte;
             bool is_escaped = stream->read(byte);
+            uart_putc(uart0, byte);
 
             if(byte == 0xE0 && !is_escaped) {
                 // uart_puts(uart1,"LED Board: Recv Sync\n");

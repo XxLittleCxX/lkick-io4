@@ -4,3 +4,6 @@
 [submodule "freertos/FreeRTOS-Kernel"]
 	path = freertos/FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel/
+[submodule "src/PicoLed"]
+	path = src/PicoLed
+	url = https://github.com/ForsakenNGS/PicoLED

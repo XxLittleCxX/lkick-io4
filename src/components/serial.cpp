@@ -8,15 +8,18 @@ namespace component {
         };
 
         void init() {
-            xTaskCreate(component::serial::update, "serial", 256, NULL, 10, NULL);
-            xTaskCreate(component::serial::aimeUpdate, "aime", 256, NULL, 10, NULL);
+//            aime_reader::init(&streams[1]);
+//            led_board::init(&streams[0]);
+
+            //xTaskCreate(component::serial::update, "serial", 2048, NULL, 5, NULL);
+            xTaskCreate(component::serial::aimeUpdate, "aime", 2048, NULL, 6, NULL);
         }
 
         [[noreturn]] void aimeUpdate(void *pVoid) {
             aime_reader::init(&streams[1]);
             while(true){
                 aime_reader::update();
-                vTaskDelay(250 / portTICK_PERIOD_MS);
+                vTaskDelay(5 / portTICK_PERIOD_MS);
             }
         }
 
@@ -63,7 +66,7 @@ namespace component {
             auto avail = tud_cdc_n_available(m_itf);
             if(avail == 1) {
                 uint8_t peek;
-                assert(tud_cdc_n_peek(m_itf, &peek));
+                tud_cdc_n_peek(m_itf, &peek);
 
                 if(peek == 0xD0)
                     return false;

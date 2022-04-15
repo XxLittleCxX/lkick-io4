@@ -5,7 +5,7 @@ namespace component {
         output_t output_data;
 
         void usb_init() {
-            xTaskCreate(tud, "tud", USBD_STACK_SIZE, NULL, 5, NULL);
+            xTaskCreate(tud, "tud", 1024, NULL, 10, NULL);
             //xTaskCreate(update_task, "io4", 256, NULL, 10, NULL);
         }
 
@@ -14,12 +14,12 @@ namespace component {
             while (true) {
                 tud_task();
 
-                component::ongeki_hardware::update_hardware(&output_data);
+                //component::ongeki_hardware::update_hardware(&output_data);
 
                 if (tud_hid_ready()) {
                     tud_hid_report(0x01, &output_data, sizeof(output_data));
                 }
-                vTaskDelay(10 / portTICK_PERIOD_MS);
+                vTaskDelay(5 / portTICK_PERIOD_MS);
             }
         }
 
@@ -33,19 +33,19 @@ namespace component {
         void process_data(const input_t *data) {
             switch (data->cmd) {
                 case io4_usb::SET_COMM_TIMEOUT:
-                    uart_puts(uart1,"IO4: Set Communicate Timeout\n");
+                    //uart_puts(uart1,"IO4: Set Communicate Timeout\n");
                     output_data.system_status = 0x30;
                     break;
                 case io4_usb::SET_SAMPLING_COUNT:
-                    uart_puts(uart1,"IO4: Set Sampling Count\n");
+                    //uart_puts(uart1,"IO4: Set Sampling Count\n");
                     output_data.system_status = 0x30;
                     break;
                 case io4_usb::CLEAR_BOARD_STATUS:
-                    uart_puts(uart1,"IO4: Clear Board Status\n");
+                   // uart_puts(uart1,"IO4: Clear Board Status\n");
                     output_data.system_status = 0x00;
                     break;
                 case io4_usb::SET_GENERAL_OUTPUT:
-                    uart_puts(uart1,"IO4: Set General Output\n");
+                    //uart_puts(uart1,"IO4: Set General Output\n");
                     break;
                 default:
                     break;
@@ -71,8 +71,6 @@ namespace component {
         tud_hid_set_report_cb(uint8_t itf, uint8_t report_id, hid_report_type_t report_type, uint8_t const *buffer,
                               uint16_t buf_size) {
             auto data = reinterpret_cast<const component::io4_usb::input_t *>(buffer);
-            uart_putc(uart1, report_id);
-            uart_putc(uart1, data->cmd);
             if (data->report_id== 0x10) {
                 process_data(data);
             }

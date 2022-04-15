@@ -4,6 +4,9 @@ include(pico-sdk/pico_sdk_init.cmake)
 
 project(LKICK)
 
+
+set(PICO_CXX_ENABLE_EXCEPTIONS 1)
+
 pico_sdk_init()
 
 add_executable(LKICK main.cpp stdinclude.h)
@@ -29,8 +32,8 @@ target_include_directories(LKICK PUBLIC
         )
 
 add_subdirectory(freertos)
+add_subdirectory(src/PicoLed)
+target_link_libraries(LKICK pico_stdlib hardware_adc tinyusb_device tinyusb_board freertos PicoLed)
 
-target_link_libraries(LKICK pico_stdlib hardware_adc tinyusb_device tinyusb_board freertos hardware_i2c)
-
-pico_enable_stdio_uart(LKICK 1)
+#pico_enable_stdio_uart(LKICK 1)
 pico_add_extra_outputs(LKICK)
