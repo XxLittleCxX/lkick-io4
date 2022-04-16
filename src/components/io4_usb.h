@@ -2,11 +2,22 @@
 
 namespace component {
     namespace io4_usb {
+        enum class coin_condition_t: uint8_t {
+            normal = 0x0,
+            jam=0x1,
+            disconnect=0x2,
+            busy=0x3
+        };
+
+        struct coin_data_t {
+            coin_condition_t condition;
+            uint8_t count;
+        } __attribute((packed));
         struct output_t {
             int16_t analog[8];
             int16_t rotary[4];
             // 10bit be number
-            uint16_t coin[2];
+            coin_data_t coin[2];
             uint16_t switches[2];
             uint8_t system_status;
             uint8_t usb_status;

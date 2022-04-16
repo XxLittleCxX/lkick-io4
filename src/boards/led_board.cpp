@@ -28,12 +28,12 @@ namespace led_board {
 
     void parse_led_data(const uint8_t* data, int count) {
         uint8_t base = 1 + 59 * 3;
-        leftColors.fill(PicoLed::RGB(data[base], data[base+1], data[base+2]));
-        leftColors.show();
+        rightColors.fill(PicoLed::RGB(data[base], data[base+1], data[base+2]));
+        rightColors.show();
 
         uint8_t leftBase = 1;
-        rightColors.fill(PicoLed::RGB(data[leftBase], data[leftBase+1], data[leftBase+2]));
-        rightColors.show();
+        leftColors.fill(PicoLed::RGB(data[leftBase], data[leftBase+1], data[leftBase+2]));
+        leftColors.show();
     }
 
     void on_packet(io_packet_t *packet) {
@@ -48,6 +48,10 @@ namespace led_board {
             case CMD_RESET:
             {
                 //uart_puts(uart1,"LED Board: Reset\n");
+                leftColors.clear();
+                leftColors.show();
+                rightColors.clear();
+                rightColors.show();
                 out->length = 0;
                 break;
             }

@@ -29,7 +29,7 @@ namespace component {
     auto card_light = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 0,
                                                          CARD_LIGHT_PIN, 16, PicoLed::FORMAT_GRB);
 
-    auto lightColors = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 3,
+    auto lightColors = PicoLed::addLeds<PicoLed::WS2812B>(pio0, 3,
                                                           11, 6, PicoLed::FORMAT_GRB);
 
     namespace ongeki_hardware {
@@ -55,26 +55,56 @@ namespace component {
             lightColors.show();
         }
 
-        void update_hardware(component::io4_usb::output_t *data) {
-            data->switches[0] = 0;
-            data->switches[1] = 0;
-            for (auto i = 0; i < 10; i++) {
-                auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
-                if (read) {
-                    data->switches[SWITCH_INDEX[i]] += 1 << SWITCH_OFFSET[i];
-                }
+        uint bitPosMap[] =
+                {
+                        23, 20, 22, 19, 21, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6
+                };
+
+        void set_led(uint ledData){
+            for(auto i=0;i<3;i++){
+                // Left1, Left2, Left3, Right1, Right2, Right3
+                lightColors.setPixelColor(i, PicoLed::RGB(
+                        ((ledData >> bitPosMap[9+i*3]) & 1) * 255,
+                        ((ledData >> bitPosMap[9+i*3+1]) & 1) * 255,
+                        ((ledData >> bitPosMap[9+i*3+2]) & 1) * 255
+                        )); // r
+                lightColors.setPixelColor(i+3, PicoLed::RGB(
+                        ((ledData >> bitPosMap[i*3]) & 1) * 255,
+                        ((ledData >> bitPosMap[i*3+1]) & 1) * 255,
+                        ((ledData >> bitPosMap[i*3+2]) & 1) * 255
+                )); // l
             }
-            if (!gpio_get(5)) {
-                lightColors.clear();
-                lightColors.setPixelColor(2, PicoLed::RGB(255, 0, 0));
-                lightColors.setPixelColor(3, PicoLed::RGB(255, 255, 255));
-                lightColors.setPixelColor(4, PicoLed::RGB(255, 255, 0));
-                lightColors.show();
+            lightColors.show();
+        }
+
+
+        void update_hardware(component::io4_usb::output_t *data) {
+            bool inHello = !gpio_get(5);
+
+            if (inHello) {
+//                lightColors.clear();
+//                lightColors.setPixelColor(2, PicoLed::RGB(255, 0, 0));
+//                lightColors.setPixelColor(3, PicoLed::RGB(255, 255, 255));
+//                lightColors.setPixelColor(4, PicoLed::RGB(255, 255, 0));
+//                lightColors.show();
                 if (!gpio_get(PIN_MAP[7])) {
                     reset_usb_boot(0, 0);
                 }
                 if (!gpio_get(PIN_MAP[0])) {
                     data->switches[0] += (1 << 9) + (1 << 6);
+                }
+                if (!gpio_get(PIN_MAP[1])) {
+                    data->coin[0].count++;
+                    data->coin[1].count++;
+                }
+            }else{
+                data->switches[0] = 0;
+                data->switches[1] = 0;
+                for (auto i = 0; i < 10; i++) {
+                    auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
+                    if (read) {
+                        data->switches[SWITCH_INDEX[i]] += 1 << SWITCH_OFFSET[i];
+                    }
                 }
             }
 

@@ -35,11 +35,18 @@ namespace component {
                     break;
                 case io4_usb::CLEAR_BOARD_STATUS:
                    // uart_puts(uart1,"IO4: Clear Board Status\n");
+                   output_data.coin[0].count = 0;
+                   output_data.coin[0].condition = io4_usb::coin_condition_t::normal;
+                    output_data.coin[1].count = 0;
+                    output_data.coin[1].condition = io4_usb::coin_condition_t::normal;
                     output_data.system_status = 0x00;
                     break;
-                case io4_usb::SET_GENERAL_OUTPUT:
+                case io4_usb::SET_GENERAL_OUTPUT: {
+                    uint32_t ledData = data->payload[0] << 16 | data->payload[1] << 8 | data->payload[2];
+                    component::ongeki_hardware::set_led(ledData);
                     //uart_puts(uart1,"IO4: Set General Output\n");
                     break;
+                }
                 default:
                     break;
             }
