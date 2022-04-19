@@ -11,36 +11,22 @@ namespace component {
 
 
         [[noreturn]] void core1(){
-            led_board::init(&component::serial::streams[0]);
+            led_board::init(&component::serial::streams[1]);
             while(true){
                 led_board::update();
             }
         }
 
         void init() {
-//            aime_reader::init(&streams[1]);
-//            led_board::init(&streams[0]);
-
-TaskHandle_t serialHandle;
-            //xTaskCreate(component::serial::update, "serial", 2048,
-            //            NULL, 5, &( serialHandle ) );
             xTaskCreate(component::serial::aimeUpdate, "aime", 2048, NULL, 6, NULL);
 
             multicore_launch_core1(core1);
         }
 
         [[noreturn]] void aimeUpdate(void *pVoid) {
-            aime_reader::init(&streams[1]);
+            aime_reader::init(&streams[0]);
             while(true){
                 aime_reader::update();
-                vTaskDelay(2 / portTICK_PERIOD_MS);
-            }
-        }
-
-        [[noreturn]] void update(void *pVoid) {
-            led_board::init(&streams[0]);
-            while(true){
-                led_board::update();
                 vTaskDelay(2 / portTICK_PERIOD_MS);
             }
         }
