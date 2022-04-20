@@ -19,7 +19,7 @@ namespace component {
                     tud_hid_report(0x01, &output_data, sizeof(output_data));
 
                 }
-                vTaskDelay(5 / portTICK_PERIOD_MS);
+                vTaskDelay(3 / portTICK_PERIOD_MS);
             }
         }
 

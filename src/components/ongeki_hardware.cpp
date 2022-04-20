@@ -26,18 +26,11 @@ namespace component {
             1, 0, 15, 14, 13
     };
 
-    auto card_light = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 0,
-                                                         CARD_LIGHT_PIN, 16, PicoLed::FORMAT_GRB);
-
     auto lightColors = PicoLed::addLeds<PicoLed::WS2812B>(pio0, 3,
                                                           11, 6, PicoLed::FORMAT_GRB);
 
     namespace ongeki_hardware {
         void init() {
-            card_light.setBrightness(0x10);
-            card_light.fill(PicoLed::RGB(255, 255, 255));
-            card_light.show();
-
             for (unsigned char i: PIN_MAP) {
                 gpio_init(i);
                 gpio_set_dir(i, GPIO_IN);
@@ -51,7 +44,7 @@ namespace component {
 
             adc_select_input(2);
 
-            lightColors.fillGradient(PicoLed::RGB(255, 0, 0), PicoLed::RGB(0, 0, 255));
+            lightColors.fill(PicoLed::RGB(255, 255, 255));
             lightColors.show();
         }
 
@@ -59,6 +52,7 @@ namespace component {
                 {
                         23, 20, 22, 19, 21, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6
                 };
+        bool inHello = false;
 
         void set_led(uint ledData){
             for(auto i=0;i<3;i++){
@@ -79,14 +73,9 @@ namespace component {
 
 
         void update_hardware(component::io4_usb::output_t *data) {
-            bool inHello = !gpio_get(5);
+            inHello = !gpio_get(5);
 
             if (inHello) {
-//                lightColors.clear();
-//                lightColors.setPixelColor(2, PicoLed::RGB(255, 0, 0));
-//                lightColors.setPixelColor(3, PicoLed::RGB(255, 255, 255));
-//                lightColors.setPixelColor(4, PicoLed::RGB(255, 255, 0));
-//                lightColors.show();
                 if (!gpio_get(PIN_MAP[7])) {
                     reset_usb_boot(0, 0);
                 }
@@ -109,6 +98,9 @@ namespace component {
             }
 
             uint16_t raw = adc_read();
+            if(raw < 3500){
+                raw += 0x77FF;
+            }
             data->analog[0] = *(int16_t *) &raw;
             data->rotary[0] = *(int16_t *) &raw;
         }

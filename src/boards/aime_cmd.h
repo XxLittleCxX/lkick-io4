@@ -7,6 +7,9 @@ uint8_t AimeKey[6], BanaKey[6];
 PN532_HSU pn532_hsu;
 PN532 nfc(pn532_hsu);
 
+auto card_light = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 0,
+                                                     CARD_LIGHT_PIN, 16, PicoLed::FORMAT_GRB);
+
 enum {
     // kNFCCMD_NFC_THROUGH subcommands
     FELICA_CMD_POLL = 0x00,
@@ -102,6 +105,9 @@ static void sg_res_init(uint8_t payload_len = 0) { //初始化模板
 }
 
 static void sg_nfc_cmd_reset() { //重置读卡器
+    card_light.setBrightness(0x10);
+    card_light.clear();
+    card_light.show();
     nfc.begin();
     nfc.setPassiveActivationRetries(0x10); //设定等待次数,0xFF永远等待
     nfc.SAMConfig();
@@ -150,7 +156,8 @@ static void sg_led_cmd_get_info() {
 }
 
 static void sg_led_cmd_set_color() {
-    // FastLED.showColor(CRGB(req.color_payload[0], req.color_payload[1], req.color_payload[2]));
+    card_light.fill(PicoLed::RGB(req.color_payload[0], req.color_payload[1], req.color_payload[2]));
+    card_light.show();
 }
 
 static void sg_nfc_cmd_radio_on() {
