@@ -98,9 +98,6 @@ namespace component {
             }
 
             uint16_t raw = adc_read();
-            if(raw < 3500){
-                raw += 0x77FF;
-            }
             data->analog[0] = *(int16_t *) &raw;
             data->rotary[0] = *(int16_t *) &raw;
         }
