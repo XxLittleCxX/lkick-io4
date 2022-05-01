@@ -245,13 +245,13 @@ char const* string_desc_arr [] =
                 // 1: Manufacturer
                 "SEGA",
                 // 2: Product
-                "ONGEEKi I/O Board Type 4",
+                "LKICK H/W 5.3-A",
                 // 3: Serials
-                "00015257",
+                "",
                 // 4: CDC1, Aime Reader
-                "AIME READER",
+                "AIME READER @COM1",
                 // 5: CDC2, Led Board
-                "LED BOARD",
+                "LED BOARD @COM3",
                 // 6: IO4 Board Name
                 "I/O CONTROL BD;15257;01;90;1831;6679A;00;GOUT=14_ADIN=8,E_ROTIN=4_COININ=2_SWIN=2,E_UQ1=41,6;",
         };

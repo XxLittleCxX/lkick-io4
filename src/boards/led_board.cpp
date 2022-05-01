@@ -18,11 +18,10 @@ namespace led_board {
         out = io_alloc(PACKET_TYPE_RESPONSE, 128);
         in = io_alloc(PACKET_TYPE_REQUEST, 128);
 
-
-        leftColors.fillGradient(PicoLed::RGB(255, 0, 0), PicoLed::RGB(0, 255, 0));
+        leftColors.fill(PicoLed::RGB(91,207,250));
         leftColors.show();
 
-        rightColors.fillGradient(PicoLed::RGB(0, 255, 0), PicoLed::RGB(0, 0, 255));
+        rightColors.fill(PicoLed::RGB(245,170,185));
         rightColors.show();
     }
 
