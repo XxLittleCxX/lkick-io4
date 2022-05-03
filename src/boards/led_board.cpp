@@ -21,7 +21,7 @@ namespace led_board {
         leftColors.fill(PicoLed::RGB(91,207,250));
         leftColors.show();
 
-        rightColors.fill(PicoLed::RGB(245,170,185));
+        rightColors.fill(PicoLed::RGB(255,97,145));
         rightColors.show();
     }
 

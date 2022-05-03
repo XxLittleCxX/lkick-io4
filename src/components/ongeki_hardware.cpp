@@ -72,6 +72,7 @@ namespace component {
         }
 
 
+        uint16_t rawArr[6] = {};
         void update_hardware(component::io4_usb::output_t *data) {
             inHello = !gpio_get(5);
 
@@ -97,7 +98,12 @@ namespace component {
                 }
             }
 
-            uint16_t raw = adc_read();
+            for(unsigned short & i : rawArr){
+                i = adc_read() << 4;
+            }
+            std::sort(rawArr, rawArr+6);
+
+            uint16_t raw = (rawArr[1] + rawArr[2] + rawArr[3] + rawArr[4]) >> 2;
             data->analog[0] = *(int16_t *) &raw;
             data->rotary[0] = *(int16_t *) &raw;
         }
