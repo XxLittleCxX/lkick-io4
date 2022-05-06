@@ -104,7 +104,6 @@ namespace component {
             std::sort(rawArr, rawArr+6);
 
             uint16_t raw = (rawArr[1] + rawArr[2] + rawArr[3] + rawArr[4]) >> 2;
-            raw = ~raw; // potentiometer only
             data->analog[0] = *(int16_t *) &raw;
             data->rotary[0] = *(int16_t *) &raw;
         }
