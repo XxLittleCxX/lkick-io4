@@ -133,9 +133,6 @@ namespace component {
             } else {
                 analog.update();
                 uint16_t raw = analog.getValue() << 4;
-                tud_cdc_write_str(std::to_string(analog.getValue() << 4).c_str());
-                tud_cdc_write_char('\r');
-                tud_cdc_write_char('\n');
                 data->analog[0] = *(int16_t *) &raw;
                 data->rotary[0] = *(int16_t *) &raw;
             }
