@@ -2,6 +2,7 @@
 
 #include "hardware/adc.h"
 #include "pico/bootrom.h"
+#include "../analogRead/analog_read.h"
 
 namespace component {
     // hello 5
@@ -32,6 +33,7 @@ namespace component {
     bool hasI2cLever = false;
     uint8_t addr = 0b0000110;
     uint8_t reg1 = 0x03, reg2 = 0x04;
+    ResponsiveAnalogRead analog(LEVER_PIN, true,0.0005);
     namespace ongeki_hardware {
         void init() {
             for (unsigned char i: PIN_MAP) {
@@ -42,12 +44,8 @@ namespace component {
             gpio_init(5);
             gpio_set_dir(5, GPIO_IN);
             gpio_pull_up(5);
-            adc_init();
-            adc_gpio_init(LEVER_PIN);
             gpio_init(PICO_DEFAULT_LED_PIN);
             gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-
-            adc_select_input(2);
 
             lightColors.fill(PicoLed::RGB(255, 255, 255));
             lightColors.show();
@@ -127,18 +125,17 @@ namespace component {
                 finalResult = finalResult > 16383 ? 65535 : finalResult << 2;
                 data->analog[0] = *(int16_t *) &finalResult;
                 data->rotary[0] = *(int16_t *) &finalResult;
-                tud_cdc_write_str(std::to_string(finalResult).c_str());
+//                tud_cdc_write_str(std::to_string(finalResult).c_str());
 //                tud_cdc_write_char(' ');
 //                tud_cdc_write_str(std::to_string(result2).c_str());
+//                tud_cdc_write_char('\r');
+//                tud_cdc_write_char('\n');
+            } else {
+                analog.update();
+                uint16_t raw = analog.getValue() << 4;
+                tud_cdc_write_str(std::to_string(analog.getValue() << 4).c_str());
                 tud_cdc_write_char('\r');
                 tud_cdc_write_char('\n');
-            } else {
-                for (unsigned short &i: rawArr) {
-                    i = adc_read() << 4;
-                }
-                std::sort(rawArr, rawArr + 6);
-
-                uint16_t raw = (rawArr[1] + rawArr[2] + rawArr[3] + rawArr[4]) >> 2;
                 data->analog[0] = *(int16_t *) &raw;
                 data->rotary[0] = *(int16_t *) &raw;
             }
