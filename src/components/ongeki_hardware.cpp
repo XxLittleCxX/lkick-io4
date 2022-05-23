@@ -29,6 +29,9 @@ namespace component {
     auto lightColors = PicoLed::addLeds<PicoLed::WS2812B>(pio0, 3,
                                                           11, 6, PicoLed::FORMAT_GRB);
 
+    bool hasI2cLever = false;
+    uint8_t addr = 0b0000110;
+    uint8_t reg1 = 0x03, reg2 = 0x04;
     namespace ongeki_hardware {
         void init() {
             for (unsigned char i: PIN_MAP) {
@@ -41,11 +44,25 @@ namespace component {
             gpio_pull_up(5);
             adc_init();
             adc_gpio_init(LEVER_PIN);
+            gpio_init(PICO_DEFAULT_LED_PIN);
+            gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
             adc_select_input(2);
 
             lightColors.fill(PicoLed::RGB(255, 255, 255));
             lightColors.show();
+
+            // check i2c lever
+
+            auto writeResult = i2c_write_blocking_until(i2c_default, addr,
+                                                        &reg1, 1, true, delayed_by_ms(get_absolute_time(), 10));
+            if (writeResult == PICO_ERROR_GENERIC || writeResult == PICO_ERROR_TIMEOUT) {
+                // no i2c lever;
+                gpio_put(PICO_DEFAULT_LED_PIN, false);
+            } else {
+                hasI2cLever = true;
+                gpio_put(PICO_DEFAULT_LED_PIN, true);
+            }
         }
 
         uint bitPosMap[] =
@@ -54,18 +71,18 @@ namespace component {
                 };
         bool inHello = false;
 
-        void set_led(uint ledData){
-            for(auto i=0;i<3;i++){
+        void set_led(uint ledData) {
+            for (auto i = 0; i < 3; i++) {
                 // Left1, Left2, Left3, Right1, Right2, Right3
                 lightColors.setPixelColor(i, PicoLed::RGB(
-                        ((ledData >> bitPosMap[9+i*3]) & 1) * 255,
-                        ((ledData >> bitPosMap[9+i*3+1]) & 1) * 255,
-                        ((ledData >> bitPosMap[9+i*3+2]) & 1) * 255
-                        )); // r
-                lightColors.setPixelColor(i+3, PicoLed::RGB(
-                        ((ledData >> bitPosMap[i*3]) & 1) * 255,
-                        ((ledData >> bitPosMap[i*3+1]) & 1) * 255,
-                        ((ledData >> bitPosMap[i*3+2]) & 1) * 255
+                        ((ledData >> bitPosMap[9 + i * 3]) & 1) * 255,
+                        ((ledData >> bitPosMap[9 + i * 3 + 1]) & 1) * 255,
+                        ((ledData >> bitPosMap[9 + i * 3 + 2]) & 1) * 255
+                )); // r
+                lightColors.setPixelColor(i + 3, PicoLed::RGB(
+                        ((ledData >> bitPosMap[i * 3]) & 1) * 255,
+                        ((ledData >> bitPosMap[i * 3 + 1]) & 1) * 255,
+                        ((ledData >> bitPosMap[i * 3 + 2]) & 1) * 255
                 )); // l
             }
             lightColors.show();
@@ -87,7 +104,7 @@ namespace component {
                     data->coin[0].count++;
                     data->coin[1].count++;
                 }
-            }else{
+            } else {
                 data->switches[0] = 0;
                 data->switches[1] = 0;
                 for (auto i = 0; i < 10; i++) {
@@ -98,14 +115,33 @@ namespace component {
                 }
             }
 
-            for(unsigned short & i : rawArr){
-                i = adc_read() << 4;
-            }
-            std::sort(rawArr, rawArr+6);
+            if (hasI2cLever) {
+                uint8_t result1, result2;
+                i2c_write_blocking(i2c_default, addr, &reg1, 1, true);
+                i2c_read_blocking(i2c_default, addr, &result1, 1, false);
 
-            uint16_t raw = (rawArr[1] + rawArr[2] + rawArr[3] + rawArr[4]) >> 2;
-            data->analog[0] = *(int16_t *) &raw;
-            data->rotary[0] = *(int16_t *) &raw;
+                i2c_write_blocking(i2c_default, addr, &reg2, 1, true);
+                i2c_read_blocking(i2c_default, addr, &result2, 1, false);
+
+                uint16_t finalResult = (result1 << 8) + result2;
+                finalResult = finalResult > 16383 ? 65535 : finalResult << 2;
+                data->analog[0] = *(int16_t *) &finalResult;
+                data->rotary[0] = *(int16_t *) &finalResult;
+                tud_cdc_write_str(std::to_string(finalResult).c_str());
+//                tud_cdc_write_char(' ');
+//                tud_cdc_write_str(std::to_string(result2).c_str());
+                tud_cdc_write_char('\r');
+                tud_cdc_write_char('\n');
+            } else {
+                for (unsigned short &i: rawArr) {
+                    i = adc_read() << 4;
+                }
+                std::sort(rawArr, rawArr + 6);
+
+                uint16_t raw = (rawArr[1] + rawArr[2] + rawArr[3] + rawArr[4]) >> 2;
+                data->analog[0] = *(int16_t *) &raw;
+                data->rotary[0] = *(int16_t *) &raw;
+            }
         }
     }
 }
