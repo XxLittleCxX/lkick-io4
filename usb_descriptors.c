@@ -245,7 +245,7 @@ char const* string_desc_arr [] =
                 // 1: Manufacturer
                 "SEGA",
                 // 2: Product
-                "LKICK H/W 5.3-C",
+                "LKICK H/W 5.3-D-DEV",
                 // 3: Serials
                 "",
                 // 4: CDC1, Aime Reader
