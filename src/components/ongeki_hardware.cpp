@@ -105,6 +105,10 @@ namespace component {
                     data->coin[1].count++;
                     coin = true;
                 }
+                if (!gpio_get(PIN_MAP[6]) && !coin) {
+                    coin = true;
+                    config::cycle_mode();
+                }
             } else {
                 coin = false;
                 data->switches[0] = 0;

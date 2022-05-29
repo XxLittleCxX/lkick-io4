@@ -31,6 +31,9 @@
 #include <PicoLed.hpp>
 #define USBD_STACK_SIZE    (3*configMINIMAL_STACK_SIZE/2) * (CFG_TUSB_DEBUG ? 2 : 1)
 
+#include "hardware/flash.h"
+#include "config.h"
+
 #define LEVER_PIN 28
 #define ONBOARD_RGB_PIN 16 // waveshare rp2040-zero
 #define LSIDE_RGB_PIN 15

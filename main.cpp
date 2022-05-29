@@ -10,6 +10,7 @@ int main() {
     gpio_pull_up(20);
     gpio_set_function(0, GPIO_FUNC_UART);
     gpio_set_function(1, GPIO_FUNC_UART);
+    component::config::init();
     component::ongeki_hardware::init();
     component::io4_usb::usb_init();
     component::serial::init();
