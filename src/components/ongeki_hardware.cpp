@@ -89,6 +89,7 @@ namespace component {
 
         uint16_t rawArr[6] = {};
         bool coin = false;
+        bool rg = false;
 
         void update_hardware(component::io4_usb::output_t *data) {
             inHello = !gpio_get(5);
@@ -100,17 +101,28 @@ namespace component {
                 if (!gpio_get(PIN_MAP[0])) {
                     data->switches[0] += (1 << 9) + (1 << 6);
                 }
-                if (!gpio_get(PIN_MAP[1]) && !coin) {
-                    data->coin[0].count++;
-                    data->coin[1].count++;
-                    coin = true;
+
+                if (!gpio_get(PIN_MAP[1])) {
+                    if (!coin) {
+                        data->coin[0].count++;
+                        data->coin[1].count++;
+                        coin = true;
+                    }
+                } else {
+                    coin = false;
                 }
-                if (!gpio_get(PIN_MAP[6]) && !coin) {
-                    coin = true;
-                    config::cycle_mode();
+
+                if (!gpio_get(PIN_MAP[6])) {
+                    if (!rg) {
+                        rg = true;
+                        config::cycle_mode();
+                    }
+                } else {
+                    rg = false;
                 }
             } else {
                 coin = false;
+                rg = false;
                 data->switches[0] = 0;
                 data->switches[1] = 0;
                 for (auto i = 0; i < 10; i++) {
