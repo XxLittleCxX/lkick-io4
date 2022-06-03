@@ -93,8 +93,9 @@ namespace component {
 
         void update_hardware(component::io4_usb::output_t *data) {
             inHello = !gpio_get(5);
+            do {
+                if (!inHello) break;
 
-            if (inHello) {
                 if (!gpio_get(PIN_MAP[7])) {
                     reset_usb_boot(0, 0);
                 }
@@ -115,23 +116,27 @@ namespace component {
                 if (!gpio_get(PIN_MAP[6])) {
                     if (!rg) {
                         rg = true;
-                        config::cycle_mode();
+                        uint8_t mode = config::cycle_mode();
+                        // TODO some led effect
                     }
                 } else {
                     rg = false;
                 }
-            } else {
-                coin = false;
-                rg = false;
-                data->switches[0] = 0;
-                data->switches[1] = 0;
-                for (auto i = 0; i < 10; i++) {
-                    auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
-                    if (read) {
-                        data->switches[SWITCH_INDEX[i]] += 1 << SWITCH_OFFSET[i];
-                    }
+
+            } while (false);
+
+
+            coin = false;
+            rg = false;
+            data->switches[0] = 0;
+            data->switches[1] = 0;
+            for (auto i = 0; i < 10; i++) {
+                auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
+                if (read) {
+                    data->switches[SWITCH_INDEX[i]] += 1 << SWITCH_OFFSET[i];
                 }
             }
+
 
             if (hasI2cLever) {
                 uint8_t result1, result2;

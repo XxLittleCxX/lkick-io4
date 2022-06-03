@@ -40,7 +40,7 @@ namespace component {
             write_config(buffer, FLASH_PAGE_SIZE);
         }
 
-        void cycle_mode() {
+        uint8_t cycle_mode() {
             switch (*mode) {
                 case MODE::IO4:
                     set_mode(MODE::CUSTOM_HID);
@@ -56,7 +56,7 @@ namespace component {
                     vTaskDelay(1000 / portTICK_PERIOD_MS);
                     gpio_put(PICO_DEFAULT_LED_PIN, false);
                     set_mode(MODE::IO4);
-                    return;
+                    return *mode;
             }
             for (int i = 0; i < *mode; ++i) {
                 gpio_put(PICO_DEFAULT_LED_PIN, true);
@@ -64,6 +64,7 @@ namespace component {
                 gpio_put(PICO_DEFAULT_LED_PIN, false);
                 vTaskDelay(100 / portTICK_PERIOD_MS);
             }
+            return *mode;
         }
     }
 }

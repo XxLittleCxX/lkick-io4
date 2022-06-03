@@ -23,6 +23,6 @@ namespace component {
 
         void set_mode(uint8_t mode);
 
-        void cycle_mode();
+        uint8_t cycle_mode();
     }
 }
