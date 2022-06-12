@@ -92,6 +92,9 @@ namespace component {
         bool rg = false;
 
         void update_hardware(component::io4_usb::output_t *data) {
+            data->switches[0] = 0;
+            data->switches[1] = 0;
+
             inHello = !gpio_get(5);
             do {
                 if (!inHello) break;
@@ -125,11 +128,9 @@ namespace component {
 
             } while (false);
 
-
             coin = false;
             rg = false;
-            data->switches[0] = 0;
-            data->switches[1] = 0;
+
             for (auto i = 0; i < 10; i++) {
                 auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
                 if (read) {
