@@ -10,7 +10,9 @@
 ## Usage
 
 HELLO+Left1: test && service
+
 HELLO+left2: coin
+
 HELLO+right3: enter bootloader
 
 ## Pins
