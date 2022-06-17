@@ -7,6 +7,12 @@
 3. Run ``git submodule update --init --recursive``
 4. plz ref to [pico official doc](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf) page 52 (I am using CLion)
 
+## Usage
+
+HELLO+Left1: test && service
+HELLO+left2: coin
+HELLO+right3: enter bootloader
+
 ## Pins
 It is recommended to check the pico official documentation for pin definitions.
 
