@@ -2,7 +2,9 @@
 
 #include "hardware/adc.h"
 #include "pico/bootrom.h"
+#include "pico/error.h"
 #include "../analogRead/analog_read.h"
+#include "scancode.h"
 
 namespace component {
     // hello 5
@@ -14,8 +16,8 @@ namespace component {
 
     const uint8_t PIN_BIT[10] = {
             // L: A B C SIDE MENU
-            1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1};
+            1, 1, 1, 0, 1,
+            1, 1, 1, 0, 1};
 
     const uint8_t SWITCH_INDEX[10] = {
             0, 0, 0, 1, 1,
@@ -25,6 +27,13 @@ namespace component {
     const uint8_t SWITCH_OFFSET[10] = {
             0, 5, 4, 15, 14,
             1, 0, 15, 14, 13
+    };
+
+    const uint8_t KEYBOARD_KEYS[10] = {
+        // L: A B C SIDE MENU
+        USB_HID_SCANCODE_S, USB_HID_SCANCODE_D, USB_HID_SCANCODE_F, USB_HID_SCANCODE_R, USB_HID_SCANCODE_Q,
+        // L: A B C SIDE MENU
+        USB_HID_SCANCODE_J, USB_HID_SCANCODE_K, USB_HID_SCANCODE_L, USB_HID_SCANCODE_U, USB_HID_SCANCODE_P
     };
 
     auto lightColors = PicoLed::addLeds<PicoLed::WS2812B>(pio0, 3,
@@ -86,6 +95,31 @@ namespace component {
             lightColors.show();
         }
 
+        void set_led_brightness(uint8_t brightness) {
+            lightColors.setBrightness(brightness);
+        }
+
+        void show_mode_effect(uint8_t mode) {
+            using namespace component::config;
+            uint key_led = 0;
+
+            switch(mode) {
+            case MODE::IO4:
+                key_led = 0xA0C440;
+                break;
+            case MODE::KEYBOARD:
+                key_led = 0x8A4900;
+                break;
+            }
+            
+            for(int i = 0; i < 2; i++) {
+                set_led(key_led);
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+                set_led(0);
+                vTaskDelay(100 / portTICK_PERIOD_MS);
+            }
+        }
+
 
         uint16_t rawArr[6] = {};
         bool coin = false;
@@ -120,7 +154,7 @@ namespace component {
                     if (!rg) {
                         rg = true;
                         uint8_t mode = config::cycle_mode();
-                        // TODO some led effect
+                        show_mode_effect(mode);
                     }
                 } else {
                     rg = false;
@@ -132,7 +166,7 @@ namespace component {
             rg = false;
 
             for (auto i = 0; i < 10; i++) {
-                auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
+                auto read = gpio_get(PIN_MAP[i]) ^ 1;
                 if (read) {
                     data->switches[SWITCH_INDEX[i]] += 1 << SWITCH_OFFSET[i];
                 }
@@ -162,6 +196,46 @@ namespace component {
                 uint16_t raw = analog.getValue() << 4;
                 data->analog[0] = *(int16_t *) &raw;
                 data->rotary[0] = *(int16_t *) &raw;
+            }
+        }
+
+        void add_key(uint8_t *keycodes, uint8_t key, int index) {
+            if (index >= 6) return;
+            keycodes[index] = key;
+        }
+
+        void update_keyboard(component::io4_usb::output_keyboard_t *data) {
+            data->modifier = 0;
+            memset(data->keycodes, 0, sizeof(data->keycodes));
+
+            inHello = !gpio_get(5);
+            do {
+                if (!inHello) break;
+
+                if (!gpio_get(PIN_MAP[7])) {
+                    reset_usb_boot(0, 0);
+                }
+
+                if (!gpio_get(PIN_MAP[6])) {
+                    if (!rg) {
+                        rg = true;
+                        uint8_t mode = config::cycle_mode();
+                        show_mode_effect(mode);
+                    }
+                } else {
+                    rg = false;
+                }
+
+            } while (false);
+
+            rg = false;
+
+            int key_index = 0;
+            for (auto i = 0; i < 10; i++) {
+                auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
+                if (read) {
+                    add_key(data->keycodes, KEYBOARD_KEYS[i], key_index++);
+                }
             }
         }
     }

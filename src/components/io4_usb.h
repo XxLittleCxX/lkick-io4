@@ -13,6 +13,7 @@ namespace component {
             coin_condition_t condition;
             uint8_t count;
         } __attribute((packed));
+
         struct output_t {
             int16_t analog[8];
             int16_t rotary[4];
@@ -39,11 +40,16 @@ namespace component {
             uint8_t payload[62];
         } __attribute((packed));
 
+        // keyboard data
+        struct output_keyboard_t {
+            uint8_t modifier;
+            uint8_t reserved;
+            uint8_t keycodes[6];
+        } __attribute((packed));
+        
         void usb_init();
 
         [[noreturn]] void tud(void *pVoid);
-
-        [[noreturn]] void update_task(void *pVoid);
 
         void process_data(const input_t *data);
     }

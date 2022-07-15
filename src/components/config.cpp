@@ -1,15 +1,25 @@
 #include "stdinclude.h"
 
+#define CONFIG_SIZE FLASH_SECTOR_SIZE
+
 namespace component {
     namespace config {
         const uint8_t *flash_target_contents = (const uint8_t *) (XIP_BASE + OFFSET);
-        const uint8_t *mode = flash_target_contents;
+//        const uint8_t *mode = &flash_target_contents[0];
+        uint8_t mode_field = MODE::IO4;
+        const uint8_t *mode = &mode_field;
 
         void init() {
 //            uint8_t id[8];
 //            flash_get_unique_id(id);
-            if (*mode == 0) { // first time booting
+            switch (*mode)
+            {
+            case MODE::IO4:
+            case MODE::KEYBOARD:
+                break;
+            default:
                 set_mode(MODE::IO4);
+                break;
             }
         }
 
@@ -25,27 +35,32 @@ namespace component {
         }
 
         void write_config(uint8_t *buf, uint16_t size) {
-            erase_config();
             uint32_t ints = save_and_disable_interrupts();
-            uint8_t buffer[FLASH_PAGE_SIZE];
+            uint8_t buffer[CONFIG_SIZE];
             memcpy(buffer, buf, size);
-            flash_range_program(OFFSET, buffer, FLASH_PAGE_SIZE);
+            flash_range_erase(OFFSET, CONFIG_SIZE);
+            flash_range_program(OFFSET, buffer, CONFIG_SIZE);
             restore_interrupts(ints);
         }
 
         void set_mode(uint8_t m) {
-            uint8_t buffer[FLASH_PAGE_SIZE];
-            read_config(buffer, FLASH_PAGE_SIZE);
+            /*
+            uint8_t buffer[CONFIG_SIZE];
+            read_config(buffer, CONFIG_SIZE);
             buffer[0] = m;
-            write_config(buffer, FLASH_PAGE_SIZE);
+            write_config(buffer, CONFIG_SIZE);
+            */
+            mode_field = m;
+            return;
+        }
+        
+        uint8_t get_mode() {
+            return *mode;
         }
 
         uint8_t cycle_mode() {
             switch (*mode) {
                 case MODE::IO4:
-                    set_mode(MODE::CUSTOM_HID);
-                    break;
-                case MODE::CUSTOM_HID:
                     set_mode(MODE::KEYBOARD);
                     break;
                 case MODE::KEYBOARD:
