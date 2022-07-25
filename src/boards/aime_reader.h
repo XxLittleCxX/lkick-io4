@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PicoLedController.hpp"
+
 namespace aime_reader {
     enum nfc_command_list : uint8_t {
         kNFCCMD_GET_FW_VERSION = 0x30,
@@ -31,6 +33,8 @@ namespace aime_reader {
         kNFCCMD_EXT_TO_NORMAL_MODE = 0xF5,
     };
 
+    PicoLed::PicoLedController getController();
+    void set_card_light(uint8_t r, uint8_t g, uint8_t b);
     void init(const component::serial::stream *stream);
     void update();
 }

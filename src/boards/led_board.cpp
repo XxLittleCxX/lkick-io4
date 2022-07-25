@@ -13,16 +13,25 @@ namespace led_board {
                                                           RSIDE_RGB_PIN, 6, PicoLed::FORMAT_GRB);
     auto leftColors = PicoLed::addLeds<PicoLed::WS2812B>(pio1, 2,
                                                          LSIDE_RGB_PIN, 6, PicoLed::FORMAT_GRB);
+
+    void set_color(uint8_t lr, uint8_t lg, uint8_t lb, uint8_t rr, uint8_t rg, uint8_t rb) {
+        leftColors.fill(PicoLed::RGB(lr, lg, lb));
+        leftColors.show();
+
+        rightColors.fill(PicoLed::RGB(rr, rg, rb));
+        rightColors.show();
+    }
+    
+    void init_color() {
+        set_color(91,207,250, 255,97,145);
+    }
+
     void init(const component::serial::stream *input) {
         stream = input;
         out = io_alloc(PACKET_TYPE_RESPONSE, 128);
         in = io_alloc(PACKET_TYPE_REQUEST, 128);
 
-        leftColors.fill(PicoLed::RGB(91,207,250));
-        leftColors.show();
-
-        rightColors.fill(PicoLed::RGB(255,97,145));
-        rightColors.show();
+        init_color();
     }
 
     void parse_led_data(const uint8_t* data, int count) {

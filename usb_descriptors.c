@@ -36,7 +36,7 @@
 //                           _PID_MAP(MIDI, 3) | _PID_MAP(VENDOR, 4) )
 //
 //#define USB_VID   0xCafe
-#define USB_BCD   0x0200
+#define USB_BCD 0x0200
 #define USB_VID 0x0ca3
 #define USB_PID 0x0021
 
@@ -134,6 +134,7 @@ uint8_t const desc_hid_report[] = {
         0x91, 0x02,                     //     Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
         0xC0,                           //   End Collection
         0xC0,                           // End Collection
+        TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(2)),
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR
@@ -184,8 +185,6 @@ uint8_t const desc_fs_configuration[] =
 
 
 
-
-
 uint8_t desc_other_speed_config[CONFIG_TOTAL_LEN];
 
 // device qualifier is mostly similar to device descriptor since we don't change configuration based on speed
@@ -215,7 +214,6 @@ uint8_t const* tud_descriptor_device_qualifier_cb(void)
 uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 {
     (void) index; // for multiple configurations
-
     return desc_fs_configuration;
 }
 
@@ -266,11 +264,12 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
 
     uint8_t chr_count;
 
-    if ( index == 0)
+    if (index == 0)
     {
         memcpy(&_desc_str[1], string_desc_arr[0], 2);
         chr_count = 1;
-    }else
+    }
+    else
     {
         // Note: the 0xEE index string is a Microsoft OS 1.0 Descriptors.
         // https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/microsoft-defined-usb-descriptors
@@ -290,7 +289,7 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index, uint16_t langid)
     }
 
     // first byte is length (including header), second byte is string type
-    _desc_str[0] = (TUSB_DESC_STRING << 8 ) | (2*chr_count + 2);
+    _desc_str[0] = (TUSB_DESC_STRING << 8) | (2 * chr_count + 2);
 
     return _desc_str;
 }

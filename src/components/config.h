@@ -1,3 +1,5 @@
+#pragma once
+
 #include "stdinclude.h"
 
 // the size of flash on pico is PICO_FLASH_SIZE_BYTES (2 * 1024 * 1024)
@@ -22,6 +24,8 @@ namespace component {
         void write_config(uint8_t *buf, uint16_t size);
 
         void set_mode(uint8_t mode);
+        
+        uint8_t get_mode();
 
         uint8_t cycle_mode();
     }
