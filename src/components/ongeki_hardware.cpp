@@ -2,6 +2,8 @@
 
 #include "hardware/adc.h"
 #include "pico/bootrom.h"
+#include "pico/error.h"
+#include "scancode.h"
 
 namespace component {
     // hello 5
@@ -186,11 +188,11 @@ namespace component {
                 finalResult = ~finalResult;
                 data->analog[0] = *(int16_t *) &finalResult;
                 data->rotary[0] = *(int16_t *) &finalResult;
-                tud_cdc_write_str(std::to_string(finalResult).c_str());
+//                tud_cdc_write_str(std::to_string(finalResult).c_str());
 //                tud_cdc_write_char(' ');
 //                tud_cdc_write_str(std::to_string(result2).c_str());
-                tud_cdc_write_char('\r');
-                tud_cdc_write_char('\n');
+//                tud_cdc_write_char('\r');
+//                tud_cdc_write_char('\n');
             } else {
                 for (unsigned short &i: rawArr) {
                     i = adc_read() << 4;
