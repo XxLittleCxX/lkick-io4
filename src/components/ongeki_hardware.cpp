@@ -16,8 +16,8 @@ namespace component {
 
     const uint8_t PIN_BIT[10] = {
             // L: A B C SIDE MENU
-            1, 1, 1, 0, 1,
-            1, 1, 1, 0, 1};
+            1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1};
 
     const uint8_t SWITCH_INDEX[10] = {
             0, 0, 0, 1, 1,
