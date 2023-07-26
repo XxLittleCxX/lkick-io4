@@ -16,8 +16,8 @@ namespace component {
 
     const uint8_t PIN_BIT[10] = {
             // L: A B C SIDE MENU
-            1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1};
+            1, 1, 1, 0, 1,
+            1, 1, 1, 0, 1};
 
     const uint8_t SWITCH_INDEX[10] = {
             0, 0, 0, 1, 1,
@@ -166,7 +166,7 @@ namespace component {
             rg = false;
 
             for (auto i = 0; i < 10; i++) {
-                auto read = gpio_get(PIN_MAP[i]) ^ 1;
+                auto read = gpio_get(PIN_MAP[i]) ^ PIN_BIT[i];
                 if (read) {
                     data->switches[SWITCH_INDEX[i]] += 1 << SWITCH_OFFSET[i];
                 }
