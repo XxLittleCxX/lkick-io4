@@ -134,7 +134,7 @@ namespace component {
                 if (!inHello) break;
 
                 if (!gpio_get(PIN_MAP[7])) {
-                    reset_usb_boot(0, 0);
+                    //reset_usb_boot(0, 0);
                 }
                 if (!gpio_get(PIN_MAP[0])) {
                     data->switches[0] += (1 << 9) + (1 << 6);
