@@ -183,7 +183,7 @@ namespace component {
 
                 uint16_t finalResult = (result1 << 8) + result2;
                 finalResult = finalResult > 16383 ? 65535 : finalResult << 2;
-                //finalResult = ~finalResult;
+                finalResult = ~finalResult;
                 data->analog[0] = *(int16_t *) &finalResult;
                 data->rotary[0] = *(int16_t *) &finalResult;
 //                tud_cdc_write_str(std::to_string(finalResult).c_str());
