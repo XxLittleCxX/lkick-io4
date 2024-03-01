@@ -4,7 +4,6 @@ include(pico-sdk/pico_sdk_init.cmake)
 
 project(LKICK)
 
-
 set(PICO_CXX_ENABLE_EXCEPTIONS 1)
 
 pico_sdk_init()
@@ -34,9 +33,8 @@ target_include_directories(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src/analogRead
         )
 
-add_subdirectory(freertos)
 add_subdirectory(src/PicoLed)
-target_link_libraries(LKICK pico_stdlib pico_multicore hardware_adc hardware_i2c tinyusb_device tinyusb_board freertos PicoLed hardware_flash)
-
+add_subdirectory(FreeRTOS-Kernel/portable/ThirdParty/GCC/RP2040 FreeRTOS-Kernel)
+target_link_libraries(LKICK pico_stdlib pico_multicore hardware_adc hardware_i2c FreeRTOS-Kernel FreeRTOS-Kernel-Heap4 tinyusb_device tinyusb_board PicoLed hardware_flash)
 #pico_enable_stdio_uart(LKICK 1)
 pico_add_extra_outputs(LKICK)
