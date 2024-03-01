@@ -23,7 +23,7 @@ namespace component {
             vTaskCoreAffinitySet(aime_handle, aime_CoreAffinityMask);
 
             TaskHandle_t led_board_handle = nullptr;
-            xTaskCreate(component::serial::led_board, "led_board", 2048, NULL, 6, &led_board_handle);
+            xTaskCreate(component::serial::led_board, "led_board", 4096, NULL, 6, &led_board_handle);
             UBaseType_t led_board_CoreAffinityMask = (1 << 1);
             vTaskCoreAffinitySet(led_board_handle, led_board_CoreAffinityMask);
         }
