@@ -33,7 +33,7 @@
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configAPPLICATION_ALLOCATED_HEAP        1
+#define configAPPLICATION_ALLOCATED_HEAP        0
 #define configTOTAL_HEAP_SIZE                   (128*1024)
 
 /* Hook function related definitions. */
@@ -59,10 +59,12 @@
 #define configTIMER_TASK_STACK_DEPTH            configMINIMAL_STACK_SIZE
 
 /* SMP port only */
+#define configNUMBER_OF_CORES                   2
 #define configNUM_CORES                         2
 #define configTICK_CORE                         0
 #define configRUN_MULTIPLE_PRIORITIES           1
 #define configUSE_CORE_AFFINITY                 1
+#define configUSE_PASSIVE_IDLE_HOOK             0
 
 /* RP2040 specific */
 #define configSUPPORT_PICO_SYNC_INTEROP         1
@@ -85,7 +87,7 @@
 #define INCLUDE_xTaskGetIdleTaskHandle          0
 #define INCLUDE_eTaskGetState                   0
 #define INCLUDE_xEventGroupSetBitFromISR        1
-#define INCLUDE_xTimerPendFunctionCall          0
+#define INCLUDE_xTimerPendFunctionCall          1
 #define INCLUDE_xTaskAbortDelay                 0
 #define INCLUDE_xTaskGetHandle                  0
 #define INCLUDE_xTaskResumeFromISR              1

@@ -9,7 +9,10 @@ namespace component {
         output_keyboard_t output_keyboard_data;
 
         void usb_init() {
-            xTaskCreate(tud, "tud", 2048, NULL, 10, NULL);
+            TaskHandle_t tud_handle = nullptr;
+            xTaskCreate(tud, "tud", 2048, NULL, 10, &tud_handle);
+            UBaseType_t tud_CoreAffinityMask = (1 << 0);
+            vTaskCoreAffinitySet(tud_handle, tud_CoreAffinityMask);
         }
 
         [[noreturn]] void tud(void *pVoid) {
