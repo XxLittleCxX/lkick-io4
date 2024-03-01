@@ -19,7 +19,7 @@ namespace component {
         void init() {
             TaskHandle_t aime_handle = nullptr;
             xTaskCreate(component::serial::aimeUpdate, "aime", 2048, NULL, 6, &aime_handle);
-            UBaseType_t aime_CoreAffinityMask = (1 << 0);
+            UBaseType_t aime_CoreAffinityMask = (1 << 1);
             vTaskCoreAffinitySet(aime_handle, aime_CoreAffinityMask);
 
             TaskHandle_t led_board_handle = nullptr;
