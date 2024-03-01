@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 include(pico-sdk/pico_sdk_init.cmake)
+include(FreeRTOS_Kernel_import.cmake)
 
 project(LKICK)
 
@@ -26,15 +27,15 @@ target_sources(LKICK PUBLIC
 
 target_include_directories(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/src/FreertosConfig
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532_HSU
         ${CMAKE_CURRENT_LIST_DIR}/src/components
         ${CMAKE_CURRENT_LIST_DIR}/src/boards
         )
 
-add_subdirectory(freertos)
 add_subdirectory(src/PicoLed)
-target_link_libraries(LKICK pico_stdlib pico_multicore hardware_adc hardware_i2c tinyusb_device tinyusb_board freertos PicoLed hardware_flash)
+target_link_libraries(LKICK pico_stdlib pico_multicore hardware_adc hardware_i2c tinyusb_device tinyusb_board FreeRTOS-Kernel FreeRTOS-Kernel-Heap4 PicoLed hardware_flash)
 
 #pico_enable_stdio_uart(LKICK 1)
 pico_add_extra_outputs(LKICK)
