@@ -22,6 +22,7 @@ target_sources(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src/boards/aime_reader.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532_HSU/PN532_HSU.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532/PN532.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/analogRead/analog_read.cpp
         ${CMAKE_CURRENT_LIST_DIR}/src/components/config.cpp
         )
 
@@ -32,6 +33,7 @@ target_include_directories(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532_HSU
         ${CMAKE_CURRENT_LIST_DIR}/src/components
         ${CMAKE_CURRENT_LIST_DIR}/src/boards
+        ${CMAKE_CURRENT_LIST_DIR}/src/analogRead
         )
 
 add_subdirectory(src/PicoLed)
