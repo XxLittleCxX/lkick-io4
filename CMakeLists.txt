@@ -26,7 +26,6 @@ target_sources(LKICK PUBLIC
 
 target_include_directories(LKICK PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/src/FreertosConfig
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532
         ${CMAKE_CURRENT_LIST_DIR}/src/PN532_HSU
         ${CMAKE_CURRENT_LIST_DIR}/src/components
