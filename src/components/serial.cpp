@@ -17,15 +17,9 @@ namespace component {
         }
 
         void init() {
-            TaskHandle_t aime_handle = nullptr;
-            xTaskCreate(component::serial::aimeUpdate, "aime", 2048, NULL, 6, &aime_handle);
-            UBaseType_t aime_CoreAffinityMask = (1 << 1);
-            vTaskCoreAffinitySet(aime_handle, aime_CoreAffinityMask);
-
-            TaskHandle_t led_board_handle = nullptr;
-            xTaskCreate(component::serial::led_board, "led_board", 4096, NULL, 6, &led_board_handle);
-            UBaseType_t led_board_CoreAffinityMask = (1 << 1);
-            vTaskCoreAffinitySet(led_board_handle, led_board_CoreAffinityMask);
+            constexpr UBaseType_t core1_CoreAffinityMask = (1 << 1);
+            xTaskCreateAffinitySet(component::serial::aimeUpdate, "aime", 2048, nullptr, 6, core1_CoreAffinityMask, nullptr);
+            xTaskCreateAffinitySet(component::serial::led_board, "led_board", 4096, nullptr, 6, core1_CoreAffinityMask, nullptr);
         }
 
         [[noreturn]] void aimeUpdate(void *pVoid) {
