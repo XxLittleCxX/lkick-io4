@@ -9,15 +9,9 @@ namespace component {
         output_keyboard_t output_keyboard_data;
 
         void usb_init() {
-            TaskHandle_t tud_handle = nullptr;
-            xTaskCreate(tud, "tud", 2048, NULL, 10, &tud_handle);
-            UBaseType_t tud_CoreAffinityMask = (1 << 0);
-            vTaskCoreAffinitySet(tud_handle, tud_CoreAffinityMask);
-
-            TaskHandle_t lever_sampling_handle = nullptr;
-            xTaskCreate(lever_sampling, "lever_sampling", 2048, NULL, 10, &lever_sampling_handle);
-            UBaseType_t lever_sampling_CoreAffinityMask = (1 << 0);
-            vTaskCoreAffinitySet(lever_sampling_handle, lever_sampling_CoreAffinityMask);
+            constexpr UBaseType_t core0_CoreAffinityMask = (1 << 0);
+            xTaskCreateAffinitySet(tud, "tud", 2048, nullptr, 10, core0_CoreAffinityMask, nullptr);
+            xTaskCreateAffinitySet(lever_sampling, "lever_sampling", 2048, nullptr, 10, core0_CoreAffinityMask, nullptr);
         }
 
         [[noreturn]] void tud(void *pVoid) {

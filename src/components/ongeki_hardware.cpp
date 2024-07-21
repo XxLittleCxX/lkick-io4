@@ -42,7 +42,7 @@ namespace component {
     bool hasI2cLever = false;
     uint8_t addr = 0b0000110;
     uint8_t reg1 = 0x03, reg2 = 0x04;
-    ResponsiveAnalogRead analog(LEVER_PIN, true, 0.002);
+    ResponsiveAnalogRead analog(LEVER_PIN, false , 0.00005);
     namespace ongeki_hardware {
         void init() {
             for (unsigned char i: PIN_MAP) {
@@ -200,7 +200,7 @@ namespace component {
 
         void update_analog()
         {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 200; i++) {
                 analog.update();
             }
         }
